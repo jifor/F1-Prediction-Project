@@ -2,3 +2,4 @@ FF1 Cache/
 venv/
 __pycache__/
 *.pyc
+cache_path.py
