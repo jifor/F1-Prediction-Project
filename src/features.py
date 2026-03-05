@@ -4,6 +4,8 @@ def add_last_finish(df):
     '''
     Add column of recent race results
 
+    Has NaN for first race; for now will use imputer but I could use the previous season's results
+
     Incoming dataframe from get_season_results() looks like
     index|DriverNumber|RoundNumber|Position
     '''

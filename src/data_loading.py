@@ -30,9 +30,9 @@ def get_season_results(season):
     session_type = 'R'
 
     # get the number of events in a season that results can be pulled for
-    # events = get_events_in_season(season)
-    # rounds = range(1, events)
-    rounds = range(1,5)
+    events = get_events_in_season(season)
+    rounds = range(1, events)
+    # rounds = range(1,5)
     all_results = []
 
     for round in rounds:
@@ -56,6 +56,3 @@ def get_season_results(season):
 
     results = pd.concat(all_results, ignore_index=True)
     return results
-
-r = get_season_results(2025)
-print(r)
