@@ -56,3 +56,39 @@ def get_season_results(season):
 
     results = pd.concat(all_results, ignore_index=True)
     return results
+
+def get_season_qual_results(season):
+    '''
+    Gets qualifying results for a season and returns them in a dataframe with Driver Number and Round Number
+    '''
+    ff1.Cache.enable_cache(cache.cache_path)
+
+    session_type = 'Q'
+
+    events = get_events_in_season(season)
+    rounds = range(1, events)
+    
+    all_results = []
+
+    for round in rounds:
+        session = ff1.get_session(season, round, session_type)
+        session.load()
+
+        result = session.results['Position']
+        result.index = result.index.astype(int)
+        # Fill missing values with 20
+        result = pd.to_numeric(result, errors="coerce").fillna(20)
+
+        qual_df = pd.DataFrame({
+            "DriverNumber": result.index,
+            "RoundNumber": round,
+            "Position": result.values
+        })
+
+        qual_df = qual_df.sort_values('DriverNumber')
+
+        all_results.append(qual_df)
+
+    results = pd.concat(all_results, ignore_index=True)
+
+    return results
