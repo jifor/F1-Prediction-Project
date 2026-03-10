@@ -30,8 +30,8 @@ def get_season_results(season):
     session_type = 'R'
 
     # get the number of events in a season that results can be pulled for
-    events = get_events_in_season(season)
-    rounds = range(1, events)
+    no_events = get_events_in_season(season)
+    rounds = range(1, no_events)
     # rounds = range(1,5)
     all_results = []
 
@@ -65,8 +65,8 @@ def get_season_qual_results(season):
 
     session_type = 'Q'
 
-    events = get_events_in_season(season)
-    rounds = range(1, events)
+    no_events = get_events_in_season(season)
+    rounds = range(1, no_events)
     
     all_results = []
 
@@ -92,3 +92,53 @@ def get_season_qual_results(season):
     results = pd.concat(all_results, ignore_index=True)
 
     return results
+
+def get_event_qual_times(session_year, round_number):
+    '''
+    Get the fastest times for each driver in a qualifying session
+
+    Returns
+    DriverNumber|RoundNumber|FastestTime
+    '''
+    ff1.Cache.enable_cache(cache.cache_path)
+
+    session = ff1.get_session(session_year, round_number, 'Q')
+    session.load()
+
+    rows = []
+    for driver in session.drivers:
+        lap = session.laps.pick_drivers(int(driver)).pick_fastest()
+        if lap is None:  # handle laps that return None
+            continue 
+        else:
+            time = lap['LapTime']
+            rows.append({
+                'DriverNumber': int(driver),
+                'RoundNumber': session.event['RoundNumber'],
+                'FastestTime': time
+            })
+
+    qual_times = pd.DataFrame(rows)
+    return qual_times
+
+def get_season_qual_times(season):
+    '''
+    Get the fastest time for each driver for every qualifying session in a season
+
+    Returns df like
+    DriverNumber|RoundNumber|FastestTime
+    '''
+
+    # Cache is enabled by get_event_qual_times()
+
+    no_events = get_events_in_season(season)
+    rounds = range(1, no_events)
+
+    all_results = []
+    for round in rounds:
+        times = get_event_qual_times(season, round)
+        times = times.sort_values('DriverNumber')
+        all_results.append(times)
+
+    results = pd.concat(all_results, ignore_index=True)
+    return results 
