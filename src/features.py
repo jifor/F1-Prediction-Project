@@ -53,3 +53,19 @@ def add_results_features(df):
 
 
     return df
+
+def add_quali_delta(df):
+    '''
+    Computes qualifying delta to fastest time
+
+    Input should be in form
+    DriverNumber|RoundNumber|FastestTime
+
+    Output will be
+    DriverNumber|RoundNumber|FastestTime|Delta
+    '''
+
+    fastest = df.groupby('RoundNumber')['FastestTime'].transform('min')
+    df['Delta'] = df['FastestTime'] - fastest
+    
+    return df 
