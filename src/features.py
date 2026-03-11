@@ -49,11 +49,6 @@ def add_3_race_consistency(df):
 def add_rolling_5_avg(df):
     return 0
 
-def add_results_features(df):
-
-
-    return df
-
 def add_quali_delta(df):
     '''
     Computes qualifying delta to fastest time
@@ -69,3 +64,19 @@ def add_quali_delta(df):
     df['Delta'] = df['FastestTime'] - fastest
     
     return df 
+
+def add_results_features(df):
+    '''
+    Incoming dataframe
+    DriverNumber|Season|RoundNumber|TeamName|Position|QualiPosition|FastestTime
+
+    Output
+    DriverNumber|Season|RoundNumber|TeamName|Position|QualiPosition|FastestTime|LastFinish|RollingAverage3|RollingStd3|Delta
+    '''
+
+    df = add_last_finish(df)
+    df = add_rolling_3_avg(df)
+    df = add_3_race_consistency(df)
+    df = add_quali_delta(df)
+
+    return df
