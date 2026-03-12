@@ -11,7 +11,7 @@ def add_last_finish(df):
     '''
     df["LastFinish"] = (
         df.groupby("DriverNumber")["Position"]
-        .shift(1)
+        .shift(1).fillna(10)
     )
 
     return df
