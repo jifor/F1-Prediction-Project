@@ -145,6 +145,37 @@ def get_season_qual_times(season):
     results = pd.concat(all_results, ignore_index=True)
     return results 
 
+# def get_rain_in_race(season):
+#     '''
+#     Return the percentage of race laps that had rain for each race in a season
+
+#     Returns
+#     RoundNumber|Rain %
+#     '''
+#     events = get_events_in_season(season)
+#     rounds = range(1,events+1)
+
+#     event_type = 'R'
+
+#     results = []
+
+#     for round in rounds:
+            
+#         session = ff1.get_session(season, round, event_type)
+#         session.load()
+
+#         weather = session.laps.get_weather_data()
+#         rain = weather['Rainfall'].astype(int).mean()
+
+#         results.append({
+#             'RoundNumber': int(round),
+#             'Rain %': rain
+#         })
+
+#     season_rain = pd.DataFrame(results)
+
+#     return season_rain
+
 def make_data_dataframe(seasons: list):
     '''
     Make a dataframe of all the results I want for the model

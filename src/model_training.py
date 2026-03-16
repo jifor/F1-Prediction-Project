@@ -3,16 +3,19 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
 
-def train_RFR_model():
+def train_RFR_model(df):
     '''
-    Train RandomForestRegressor model
+    Returns trained RandomForestRegressor model
 
-    Returns model, array of predictions from the model, and error of the predictions to test data
+    Incoming DataFrame:
+    DriverNumber|Season|RoundNumber|TeamName|Position|QualiPosition|FastestTime|LastFinish|RollingAverage3|RollingStd3|Delta
     '''
-    data = pd.read_csv('data/F1_model_data.csv')
+    # data = pd.read_csv('data/F1_model_data.csv')
 
-    X = data[['DriverNumber', 'QualiPosition', 'LastFinish', 'RollingAverage3', 'RollingStd3', 'Delta']]
-    y = data['Position']
+    X_teamnames = df[['DriverNumber', 'TeamName', 'QualiPosition', 'LastFinish', 'RollingAverage3', 'RollingStd3', 'Delta']]
+    y = df['Position']
+
+    X = pd.get_dummies(X_teamnames, columns=['TeamName'])
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20)
 
@@ -23,4 +26,6 @@ def train_RFR_model():
 
     error = mean_absolute_error(y_test, predictions)
 
-    return model, predictions, error
+    print(f'Model trained. Error of {error}')
+
+    return model, X_test, y_test
