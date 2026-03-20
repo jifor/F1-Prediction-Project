@@ -16,13 +16,18 @@ def train_RFR_model(df):
     '''
     # data = pd.read_csv('data/F1_model_data.csv')
 
+    df_train = df[df['Season'] != 2025]
+    df_test = df[df['Season'] == 2025]
+
     feature_cols = ['DriverNumber', 'TeamName', 'QualiPosition', 'LastFinish', 'RollingAverage3', 'RollingStd3', 'Delta']
-    X_teamnames = df[feature_cols]
-    y = df['Position']
+    X_train_teamnames = df_train[feature_cols]
+    X_test_teamnames = df_test[feature_cols]
+    y_train = df_train['Position']
+    y_test = df_test['Position']
 
-    X = pd.get_dummies(X_teamnames, columns=['TeamName'])
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20)
+    X_train = pd.get_dummies(X_train_teamnames, columns=['TeamName'])
+    X_test = pd.get_dummies(X_test_teamnames, columns=['TeamName'])
+    X_test = X_test.reindex(columns=X_train.columns, fill_value=0)
 
     model = RandomForestRegressor()
     model.fit(X_train, y_train)
