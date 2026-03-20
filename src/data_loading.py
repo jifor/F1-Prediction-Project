@@ -12,14 +12,44 @@ def get_events_in_season(year):
 
     return len(schedule.index) 
 
-def get_loaded_session(season_year, round_num, session_type='R'):
+def get_most_recent_event():
+    '''
+    Returns the most recent event
+    '''
+    ff1.Cache.enable_cache(cache.cache_path)
+
+    current_date = pd.Timestamp.now()
+    schedule = ff1.get_event_schedule(current_date.year)
+    round = schedule[schedule["Session1DateUtc"] <= current_date].iloc[-1]['RoundNumber']
+    event = schedule.get_event_by_round(round)
+
+    return event
+
+def get_loaded_session(
+        season_year, 
+        round_num, 
+        session_type, 
+        load_laps=False, 
+        load_weather=False, 
+        load_telemetry=False, 
+        load_messages=False
+        ):
     '''
     Return loaded session
+
+    Args:
+        season_year: season year
+        round_num: round number
+        session_type: type of session, 'Q' or 'R'
+        load_laps: load laps data or not
+        load_weather: load weather data or not
+        load_telemetry: load telemetry data or not
+        load_messages: load race control messages or not
     '''
     ff1.Cache.enable_cache(cache.cache_path)
 
     session = ff1.get_session(season_year, round_num, session_type)
-    session.load()
+    session.load(laps=load_laps, telemetry=load_telemetry, weather=load_weather, messages=load_messages)
 
     return session
 
@@ -89,7 +119,7 @@ def get_quali_times(season_year=None, round_number=None, session=None):
     if session is None:
         if season_year is None or round_number is None:
             raise ValueError('Need either a loaded session or session information')
-        session = get_loaded_session(season_year, round_number, session_type='Q')
+        session = get_loaded_session(season_year, round_number, session_type='Q', load_laps=True)
 
     rows = []
     for driver in session.drivers:
@@ -139,22 +169,20 @@ def get_quali_times(season_year=None, round_number=None, session=None):
 
 #     return season_rain
 
-def get_data_for_season(season):
+def get_data_for_season(season_year):
     '''
     Returns DataFrame with results for a whole season.
 
     DataFrame:
     DriverNumber|Season|RoundNumber|TeamName|Position|QualiPosition|FastestTime
     '''   
-    events = get_events_in_season(season)
+    events = get_events_in_season(season_year)
     rounds = range(1, events+1)
 
     all_results = []
     for round in rounds:
-        race = get_loaded_session(season, round, 'R')
-        quali = get_loaded_session(season, round, 'Q')
-        race.load()
-        quali.load()
+        race = get_loaded_session(season_year, round, 'R')
+        quali = get_loaded_session(season_year, round, 'Q', load_laps=True)
 
         quali_res = get_quali_results(session=quali) # DriverNumber|RoundNumber|QualiPosition
         quali_times = get_quali_times(session=quali) # DriverNumber|RoundNumber|FastestTime
@@ -178,8 +206,8 @@ def make_data_dataframe(seasons: list):
     '''
     results = []
     for season in seasons:
-        season_res = get_data_for_season(season)
-        season_res = season_res.insert(1,'Season', season)
+        season_res = get_data_for_season(season_year=season)
+        season_res.insert(1,'Season', season)
 
         results.append(season_res)
 

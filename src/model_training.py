@@ -3,6 +3,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
 import joblib
+from data_loading import (
+    get_most_recent_event
+)
 
 def train_RFR_model(df):
     '''
@@ -13,7 +16,8 @@ def train_RFR_model(df):
     '''
     # data = pd.read_csv('data/F1_model_data.csv')
 
-    X_teamnames = df[['DriverNumber', 'TeamName', 'QualiPosition', 'LastFinish', 'RollingAverage3', 'RollingStd3', 'Delta']]
+    feature_cols = ['DriverNumber', 'TeamName', 'QualiPosition', 'LastFinish', 'RollingAverage3', 'RollingStd3', 'Delta']
+    X_teamnames = df[feature_cols]
     y = df['Position']
 
     X = pd.get_dummies(X_teamnames, columns=['TeamName'])
@@ -30,6 +34,15 @@ def train_RFR_model(df):
     print(f'Model trained. Error of {error}')
 
     return model, X_test, y_test
+
+def make_prediction_dataframe():
+
+    # get the most recent event and load the quali results
+    event = get_most_recent_event()
+    quali = event.get_qualifying()
+    quali.load(telemetry=False, weather=False)
+
+    return 0
 
 def predict_winner():
 
