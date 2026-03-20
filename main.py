@@ -1,23 +1,34 @@
-import typer 
+import tkinter as tk 
+from tkinter import ttk
 import fastf1 as ff1
+from cache_path import cache_path
 
-app = typer.Typer()
+root = tk.Tk()
+root.title('F1 Prediction')
 
-ff1.Cache.enable_cache('C:\\Users\\jifor\\Python\\F1 Prediction Project\\FF1 Cache')
+ff1.Cache.enable_cache(cache_path)
 
-'''
-Make a function that will take a race (year and name) as the input and return the winner
-'''
-@app.command()
-def race_winner(name: str, year: int):
-    session = ff1.get_session(year, name, 'R')
-
+def function(event=None):
+    session = ff1.get_session(2025, 1, 'R')
+    lbl.config(text='Getting race winner...')
     session.load()
+    winner = session.results.loc['1', 'FullName']
+    lbl.config(text=f'The winner of the {session.event['OfficialEventName']} was {winner}')
 
-    winner_first_name = session.results.iloc[0]['FirstName']
-    winner_last_name = session.results.iloc[0]['LastName']
 
-    print(f'The winner of the {year} {session.event['EventName']} was {winner_first_name} {winner_last_name}!')
+root.columnconfigure(0, weight=1)
+root.rowconfigure(0, weight=1)
 
-if __name__ == '__main__':
-    app()
+frame = ttk.Frame(root)
+frame.grid(row=0, column=0, sticky='nsew', padx=5, pady=5)
+
+frame.columnconfigure(0, weight=1)
+frame.rowconfigure(1, weight=1)
+
+btn = ttk.Button(frame, text='Add', command=function)
+btn.grid(row=0, column=0)
+
+lbl = ttk.Label(frame, text='Label Text')
+lbl.grid(row=1, column=0)
+
+root.mainloop()
