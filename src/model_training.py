@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
+import joblib
 
 def train_RFR_model(df):
     '''
@@ -29,3 +30,14 @@ def train_RFR_model(df):
     print(f'Model trained. Error of {error}')
 
     return model, X_test, y_test
+
+def predict_winner():
+
+    df = make_prediction_dataframe()
+
+    model = joblib.load('model.pkl')
+    predictions = model.predict(df)
+
+    winner = get_winner(predictions)
+
+    return 0
